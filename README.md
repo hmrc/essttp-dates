@@ -1,7 +1,7 @@
 
 # essttp-dates
 
-This is a placeholder README.md for a new repository
+Dates µservice for essttp
 
 ### License
 
