@@ -1,3 +1,4 @@
 # microservice specific routes
 
-POST       /start-dates             uk.gov.hmrc.essttpdates.controllers.StartDatesController.startDates()
+POST       /start-dates             uk.gov.hmrc.essttpdates.controllers.DatesController.startDates()
+POST       /extreme-dates           uk.gov.hmrc.essttpdates.controllers.DatesController.extremeDates()

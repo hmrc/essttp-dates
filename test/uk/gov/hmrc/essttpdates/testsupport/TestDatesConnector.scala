@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.essttpdates.testsupport
 
-import uk.gov.hmrc.essttpdates.models.StartDatesRequest
+import essttp.rootmodel.dates.extremedates.ExtremeDatesRequest
+import essttp.rootmodel.dates.startdates.StartDatesRequest
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpReadsInstances, HttpResponse}
@@ -32,5 +33,8 @@ class TestDatesConnector @Inject() (httpClient: HttpClient)(implicit executionCo
 
   def startDates(startDatesRequest: StartDatesRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
     httpClient.POST[StartDatesRequest, HttpResponse](s"$essttpDatesBaseUrl/start-dates", startDatesRequest)
+
+  def extremeDates(extremeDatesRequest: ExtremeDatesRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    httpClient.POST[ExtremeDatesRequest, HttpResponse](s"$essttpDatesBaseUrl/extreme-dates", extremeDatesRequest)
 
 }

@@ -1,0 +1,9 @@
+### Example of posting for extreme dates endpoint
+POST http://localhost:9219/essttp-dates/extreme-dates
+Accept: */*
+Cache-Control: no-cache
+Content-Type: Application/Json
+
+{
+  "initialPayment": true
+}
