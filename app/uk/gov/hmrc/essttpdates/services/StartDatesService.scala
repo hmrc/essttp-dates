@@ -17,19 +17,16 @@
 package uk.gov.hmrc.essttpdates.services
 
 import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.essttpdates.models._
+import essttp.rootmodel.dates.InitialPaymentDate
+import essttp.rootmodel.dates.startdates.{InstalmentStartDate, PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import java.time.{Clock, LocalDate}
 import scala.concurrent.Future
 
+import java.time.LocalDate
+
 @Singleton
-class StartDatesService @Inject() (clock: Clock) {
-
-  def today(): LocalDate = LocalDate.now(clock)
-
-  private def plus10Days(localDate: LocalDate): LocalDate = localDate.plusDays(10)
-
-  private def plus30Days(localDate: LocalDate): LocalDate = localDate.plusDays(30)
+class StartDatesService @Inject() (datesService: DatesService) {
 
   private def calculateInstalmentStartDate(preferredDayOfMonth: PreferredDayOfMonth, proposedStartDate: LocalDate): InstalmentStartDate = {
     // if the preferred day of month is before the proposed start date day of month it should be next month on that day
@@ -40,17 +37,18 @@ class StartDatesService @Inject() (clock: Clock) {
     }
   }
 
-  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[Either[StartDatesService.Error, StartDatesResponse]] = {
+  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[StartDatesResponse] = {
     if (startDatesRequest.preferredDayOfMonth.value < 1 || startDatesRequest.preferredDayOfMonth.value > 29) {
-      Future.successful(Left(StartDatesService.BadRequestError("PreferredDayOfMonth has to be between 1 and 28")))
+      Future.failed(UpstreamErrorResponse("PreferredDayOfMonth has to be between 1 and 28", play.mvc.Http.Status.BAD_REQUEST))
     } else {
-      val initialPaymentDay: Option[InitialPaymentDate] = startDatesRequest.initialPayment match {
-        case InitialPayment(true)  => Some(InitialPaymentDate(plus10Days(today())))
-        case InitialPayment(false) => None
-      }
-      val potentialInstalmentStartDate: InstalmentStartDate = initialPaymentDay match {
-        case Some(_) => InstalmentStartDate(plus30Days(today()))
-        case None    => InstalmentStartDate(plus10Days(today()))
+      val initialPaymentDate: Option[InitialPaymentDate] =
+        datesService.initialPaymentDate(
+          initialPayment    = startDatesRequest.initialPayment,
+          numberOfDaysToAdd = 10
+        )
+      val potentialInstalmentStartDate: InstalmentStartDate = initialPaymentDate match {
+        case Some(_) => InstalmentStartDate(datesService.todayPlusDays(30))
+        case None    => InstalmentStartDate(datesService.todayPlusDays(10))
       }
       val instalmentStartDate: InstalmentStartDate =
         calculateInstalmentStartDate(
@@ -58,14 +56,7 @@ class StartDatesService @Inject() (clock: Clock) {
           proposedStartDate   = potentialInstalmentStartDate.value
         )
 
-      Future.successful(Right(StartDatesResponse(initialPaymentDay, instalmentStartDate)))
+      Future.successful(StartDatesResponse(initialPaymentDate, instalmentStartDate))
     }
   }
-
-}
-
-object StartDatesService {
-  sealed trait Error
-
-  final case class BadRequestError(message: String) extends Error
 }

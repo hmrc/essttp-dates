@@ -16,27 +16,31 @@
 
 package uk.gov.hmrc.essttpdates.controllers
 
-import play.api.libs.json.Json
+import essttp.rootmodel.dates.extremedates.ExtremeDatesRequest
+import essttp.rootmodel.dates.startdates.StartDatesRequest
+import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents}
-import uk.gov.hmrc.essttpdates.models.StartDatesRequest
-import uk.gov.hmrc.essttpdates.services.StartDatesService
+import uk.gov.hmrc.essttpdates.services.{ExtremeDatesService, StartDatesService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 @Singleton()
-class StartDatesController @Inject() (
-    startDatesService: StartDatesService,
-    cc:                ControllerComponents
+class DatesController @Inject() (
+    startDatesService:   StartDatesService,
+    extremeDatesService: ExtremeDatesService,
+    cc:                  ControllerComponents
 )(implicit executionContext: ExecutionContext)
   extends BackendController(cc) {
 
   def startDates(): Action[StartDatesRequest] = Action.async(parse.json[StartDatesRequest]) { implicit request =>
-    startDatesService.calculateStartDates(request.body).map {
-      case Left(_)      => BadRequest
-      case Right(value) => Ok(Json.toJson(value))
-    }
+    startDatesService.calculateStartDates(request.body)
+      .map(startDatesResponse => Ok(Json.toJson(startDatesResponse)))
+  }
+
+  def extremeDates(): Action[ExtremeDatesRequest] = Action(parse.json[ExtremeDatesRequest]) { implicit request =>
+    Ok(Json.toJson(extremeDatesService.calculateExtremeDates(request.body)))
   }
 
 }

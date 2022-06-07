@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.essttpdates.testsupport
 
-import uk.gov.hmrc.essttpdates.testsupport.testdata.TdAll
+import essttp.dates.DatesTdAll
 
 import java.time.{Clock, Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
 
@@ -56,7 +56,7 @@ object FrozenTime {
 
   def reset(): Unit = setTime(initialLocalDate)
 
-  private val initialLocalDate = LocalDate.parse(TdAll.TdDates.`1stJan2022`)
+  private val initialLocalDate = LocalDate.parse(DatesTdAll.TdDates.`1stJan2022`)
   @SuppressWarnings(Array("org.wartremover.warts.Var"))
   private var currentClock: Clock = fixedClockUTC(initialLocalDate)
   private val testClock: Clock = new Clock {

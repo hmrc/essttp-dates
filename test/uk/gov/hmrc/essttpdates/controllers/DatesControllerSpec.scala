@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.essttpdates.controllers
 
-import uk.gov.hmrc.essttpdates.models._
-import uk.gov.hmrc.essttpdates.testsupport.testdata.TdAll
-import uk.gov.hmrc.essttpdates.testsupport.testdata.TdAll.TdDates
+import essttp.dates.DatesTdAll
+import essttp.dates.DatesTdAll.TdDates
+import essttp.rootmodel.dates.extremedates.{EarliestPlanStartDate, ExtremeDatesRequest, ExtremeDatesResponse, LatestPlanStartDate}
+import essttp.rootmodel.dates.startdates.{PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
+import essttp.rootmodel.dates.{InitialPayment, InitialPaymentDate}
 import uk.gov.hmrc.essttpdates.testsupport.{FrozenTime, ItSpec, TestDatesConnector}
-import uk.gov.hmrc.http.HttpResponse
 
 import java.time.LocalDate
 
-class StartDatesControllerSpec extends ItSpec {
+class DatesControllerSpec extends ItSpec {
 
   def connector: TestDatesConnector = app.injector.instanceOf[TestDatesConnector]
 
@@ -91,10 +92,39 @@ class StartDatesControllerSpec extends ItSpec {
       s"[CurrentDay: $currentDate][PreferredDayOfMonth: ${preferredDayOfMonth.toString}][InitialPayment:${initialPayment.toString}][ExpectedStartDate: $earliestInstalmentStartDate]" in {
         FrozenTime.setTime(currentDate)
         val initialPaymentDate: Option[InitialPaymentDate] = earliestInitialPaymentDate.map(someDate => InitialPaymentDate(LocalDate.parse(someDate)))
-        val request: StartDatesRequest = TdAll.startDatesRequest(InitialPayment(initialPayment), PreferredDayOfMonth(preferredDayOfMonth))
-        val response: HttpResponse = connector.startDates(request).futureValue
-        response.json.as[StartDatesResponse] shouldBe TdAll.startDatesResponse(initialPaymentDate, earliestInstalmentStartDate)
+        val request: StartDatesRequest = DatesTdAll.startDatesRequest(InitialPayment(initialPayment), PreferredDayOfMonth(preferredDayOfMonth))
+        val response: StartDatesResponse = connector.startDates(request).futureValue
+        response shouldBe DatesTdAll.startDatesResponse(initialPaymentDate, earliestInstalmentStartDate)
       }
     }
   }
+
+  "POST /extreme-dates should" - {
+
+    "return earliestPlanStartDate(+10 days), latestPlanStartDate(+40 days), when initialPayment=false, " in {
+      FrozenTime.setTime(TdDates.`1stJan2022`)
+      val request: ExtremeDatesRequest = ExtremeDatesRequest(InitialPayment(false))
+      val expectedResult: ExtremeDatesResponse = ExtremeDatesResponse(
+        initialPaymentDate    = None,
+        earliestPlanStartDate = EarliestPlanStartDate(LocalDate.parse(TdDates.`11thJan2022`)),
+        latestPlanStartDate   = LatestPlanStartDate(LocalDate.parse(TdDates.`10thFeb2022`))
+      )
+      val response: ExtremeDatesResponse = connector.extremeDates(request).futureValue
+      response shouldBe expectedResult
+    }
+
+    "return Some(initialPaymentDate(+10 days)), earliestPlanStartDate(+30 days), latestPlanStartDate(+60 days), when initialPayment=true" in {
+      FrozenTime.setTime(TdDates.`1stJan2022`)
+      val request: ExtremeDatesRequest = ExtremeDatesRequest(InitialPayment(true))
+      val expectedResult: ExtremeDatesResponse = ExtremeDatesResponse(
+        initialPaymentDate    = Some(InitialPaymentDate(LocalDate.parse(TdDates.`11thJan2022`))),
+        earliestPlanStartDate = EarliestPlanStartDate(LocalDate.parse("2022-01-31")),
+        latestPlanStartDate   = LatestPlanStartDate(LocalDate.parse(TdDates.`2ndMar2022`))
+      )
+      val response: ExtremeDatesResponse = connector.extremeDates(request).futureValue
+      response shouldBe expectedResult
+    }
+
+  }
+
 }
