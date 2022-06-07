@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.essttpdates.testsupport
 
-import essttp.rootmodel.dates.extremedates.ExtremeDatesRequest
-import essttp.rootmodel.dates.startdates.StartDatesRequest
+import essttp.rootmodel.dates.extremedates.{ExtremeDatesRequest, ExtremeDatesResponse}
+import essttp.rootmodel.dates.startdates.{StartDatesRequest, StartDatesResponse}
 
 import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpReads, HttpReadsInstances, HttpResponse}
 import uk.gov.hmrc.http.HttpClient
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,10 +32,10 @@ class TestDatesConnector @Inject() (httpClient: HttpClient)(implicit executionCo
   private val essttpDatesBaseUrl = s"http://localhost:$port/essttp-dates"
   implicit val readResponse: HttpReads[HttpResponse] = HttpReadsInstances.throwOnFailure(HttpReadsInstances.readEitherOf(HttpReadsInstances.readRaw))
 
-  def startDates(startDatesRequest: StartDatesRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.POST[StartDatesRequest, HttpResponse](s"$essttpDatesBaseUrl/start-dates", startDatesRequest)
+  def startDates(startDatesRequest: StartDatesRequest)(implicit hc: HeaderCarrier): Future[StartDatesResponse] =
+    httpClient.POST[StartDatesRequest, StartDatesResponse](s"$essttpDatesBaseUrl/start-dates", startDatesRequest)
 
-  def extremeDates(extremeDatesRequest: ExtremeDatesRequest)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient.POST[ExtremeDatesRequest, HttpResponse](s"$essttpDatesBaseUrl/extreme-dates", extremeDatesRequest)
+  def extremeDates(extremeDatesRequest: ExtremeDatesRequest)(implicit hc: HeaderCarrier): Future[ExtremeDatesResponse] =
+    httpClient.POST[ExtremeDatesRequest, ExtremeDatesResponse](s"$essttpDatesBaseUrl/extreme-dates", extremeDatesRequest)
 
 }

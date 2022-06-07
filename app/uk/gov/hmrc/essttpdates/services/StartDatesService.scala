@@ -19,10 +19,11 @@ package uk.gov.hmrc.essttpdates.services
 import com.google.inject.{Inject, Singleton}
 import essttp.rootmodel.dates.InitialPaymentDate
 import essttp.rootmodel.dates.startdates.{InstalmentStartDate, PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
-import uk.gov.hmrc.essttpdates.services
+import uk.gov.hmrc.http.UpstreamErrorResponse
+
+import scala.concurrent.Future
 
 import java.time.LocalDate
-import scala.concurrent.Future
 
 @Singleton
 class StartDatesService @Inject() (datesService: DatesService) {
@@ -36,18 +37,18 @@ class StartDatesService @Inject() (datesService: DatesService) {
     }
   }
 
-  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[Either[services.DatesService.Error, StartDatesResponse]] = {
+  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[StartDatesResponse] = {
     if (startDatesRequest.preferredDayOfMonth.value < 1 || startDatesRequest.preferredDayOfMonth.value > 29) {
-      Future.successful(Left(services.DatesService.BadRequestError("PreferredDayOfMonth has to be between 1 and 28")))
+      Future.failed(UpstreamErrorResponse("PreferredDayOfMonth has to be between 1 and 28", play.mvc.Http.Status.BAD_REQUEST))
     } else {
       val initialPaymentDate: Option[InitialPaymentDate] =
         datesService.initialPaymentDate(
           initialPayment    = startDatesRequest.initialPayment,
-          numberOfDaysToAdd = datesService.`10.Days`
+          numberOfDaysToAdd = 10
         )
       val potentialInstalmentStartDate: InstalmentStartDate = initialPaymentDate match {
-        case Some(_) => InstalmentStartDate(datesService.todayPlusDays(datesService.`30.Days`))
-        case None    => InstalmentStartDate(datesService.todayPlusDays(datesService.`10.Days`))
+        case Some(_) => InstalmentStartDate(datesService.todayPlusDays(30))
+        case None    => InstalmentStartDate(datesService.todayPlusDays(10))
       }
       val instalmentStartDate: InstalmentStartDate =
         calculateInstalmentStartDate(
@@ -55,7 +56,7 @@ class StartDatesService @Inject() (datesService: DatesService) {
           proposedStartDate   = potentialInstalmentStartDate.value
         )
 
-      Future.successful(Right(StartDatesResponse(initialPaymentDate, instalmentStartDate)))
+      Future.successful(StartDatesResponse(initialPaymentDate, instalmentStartDate))
     }
   }
 }

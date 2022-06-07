@@ -25,21 +25,10 @@ import java.time.{Clock, LocalDate}
 class DatesService @Inject() (clock: Clock) {
   def today(): LocalDate = LocalDate.now(clock)
 
-  val `10.Days`: Int = 10
-  val `30.Days`: Int = 30
-  val `40.Days`: Int = 40
-  val `60.Days`: Int = 60
-
   def todayPlusDays(numberOfDays: Int): LocalDate = today().plusDays(numberOfDays)
 
   def initialPaymentDate(initialPayment: InitialPayment, numberOfDaysToAdd: Int): Option[InitialPaymentDate] = initialPayment match {
     case InitialPayment(true)  => Some(InitialPaymentDate(todayPlusDays(numberOfDaysToAdd)))
     case InitialPayment(false) => None
   }
-}
-
-object DatesService {
-  sealed trait Error
-
-  final case class BadRequestError(message: String) extends Error
 }

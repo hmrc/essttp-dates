@@ -18,7 +18,7 @@ package uk.gov.hmrc.essttpdates.controllers
 
 import essttp.rootmodel.dates.extremedates.ExtremeDatesRequest
 import essttp.rootmodel.dates.startdates.StartDatesRequest
-import play.api.libs.json.Json
+import play.api.libs.json._
 import play.api.mvc.{Action, ControllerComponents}
 import uk.gov.hmrc.essttpdates.services.{ExtremeDatesService, StartDatesService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
@@ -35,17 +35,12 @@ class DatesController @Inject() (
   extends BackendController(cc) {
 
   def startDates(): Action[StartDatesRequest] = Action.async(parse.json[StartDatesRequest]) { implicit request =>
-    startDatesService.calculateStartDates(request.body).map {
-      case Left(_)      => BadRequest
-      case Right(value) => Ok(Json.toJson(value))
-    }
+    startDatesService.calculateStartDates(request.body)
+      .map(startDatesResponse => Ok(Json.toJson(startDatesResponse)))
   }
 
-  def extremeDates(): Action[ExtremeDatesRequest] = Action.async(parse.json[ExtremeDatesRequest]) { implicit request =>
-    extremeDatesService.calculateExtremeDates(request.body).map {
-      case Left(_)      => BadRequest
-      case Right(value) => Ok(Json.toJson(value))
-    }
+  def extremeDates(): Action[ExtremeDatesRequest] = Action(parse.json[ExtremeDatesRequest]) { implicit request =>
+    Ok(Json.toJson(extremeDatesService.calculateExtremeDates(request.body)))
   }
 
 }

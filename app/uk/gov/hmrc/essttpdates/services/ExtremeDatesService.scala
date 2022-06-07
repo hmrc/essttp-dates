@@ -17,35 +17,30 @@
 package uk.gov.hmrc.essttpdates.services
 
 import com.google.inject.{Inject, Singleton}
-import essttp.rootmodel.dates.{InitialPayment, InitialPaymentDate}
 import essttp.rootmodel.dates.extremedates.{EarliestPlanStartDate, ExtremeDatesRequest, ExtremeDatesResponse, LatestPlanStartDate}
-import uk.gov.hmrc.essttpdates.services
-
-import scala.concurrent.Future
+import essttp.rootmodel.dates.{InitialPayment, InitialPaymentDate}
 
 @Singleton
 class ExtremeDatesService @Inject() (datesService: DatesService) {
-  def calculateExtremeDates(extremeDatesRequest: ExtremeDatesRequest): Future[Either[services.DatesService.Error, ExtremeDatesResponse]] = {
+  def calculateExtremeDates(extremeDatesRequest: ExtremeDatesRequest): ExtremeDatesResponse = {
     val initialPaymentDate: Option[InitialPaymentDate] =
       datesService.initialPaymentDate(
         initialPayment    = extremeDatesRequest.initialPayment,
-        numberOfDaysToAdd = datesService.`10.Days`
+        numberOfDaysToAdd = 10
       )
     val earliestPlanStartDate: EarliestPlanStartDate = extremeDatesRequest.initialPayment match {
-      case InitialPayment(true)  => EarliestPlanStartDate(datesService.todayPlusDays(datesService.`30.Days`))
-      case InitialPayment(false) => EarliestPlanStartDate(datesService.todayPlusDays(datesService.`10.Days`))
+      case InitialPayment(true)  => EarliestPlanStartDate(datesService.todayPlusDays(30))
+      case InitialPayment(false) => EarliestPlanStartDate(datesService.todayPlusDays(10))
     }
     val latestPlanStartDate: LatestPlanStartDate = extremeDatesRequest.initialPayment match {
-      case InitialPayment(true)  => LatestPlanStartDate(datesService.todayPlusDays(datesService.`60.Days`))
-      case InitialPayment(false) => LatestPlanStartDate(datesService.todayPlusDays(datesService.`40.Days`))
+      case InitialPayment(true)  => LatestPlanStartDate(datesService.todayPlusDays(60))
+      case InitialPayment(false) => LatestPlanStartDate(datesService.todayPlusDays(40))
     }
 
-    Future.successful(Right(
-      ExtremeDatesResponse(
-        initialPaymentDate    = initialPaymentDate,
-        earliestPlanStartDate = earliestPlanStartDate,
-        latestPlanStartDate   = latestPlanStartDate
-      )
-    ))
+    ExtremeDatesResponse(
+      initialPaymentDate    = initialPaymentDate,
+      earliestPlanStartDate = earliestPlanStartDate,
+      latestPlanStartDate   = latestPlanStartDate
+    )
   }
 }

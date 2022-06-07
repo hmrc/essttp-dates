@@ -19,10 +19,9 @@ package uk.gov.hmrc.essttpdates.controllers
 import essttp.dates.DatesTdAll
 import essttp.dates.DatesTdAll.TdDates
 import essttp.rootmodel.dates.extremedates.{EarliestPlanStartDate, ExtremeDatesRequest, ExtremeDatesResponse, LatestPlanStartDate}
-import essttp.rootmodel.dates.{InitialPayment, InitialPaymentDate}
 import essttp.rootmodel.dates.startdates.{PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
+import essttp.rootmodel.dates.{InitialPayment, InitialPaymentDate}
 import uk.gov.hmrc.essttpdates.testsupport.{FrozenTime, ItSpec, TestDatesConnector}
-import uk.gov.hmrc.http.HttpResponse
 
 import java.time.LocalDate
 
@@ -94,8 +93,8 @@ class DatesControllerSpec extends ItSpec {
         FrozenTime.setTime(currentDate)
         val initialPaymentDate: Option[InitialPaymentDate] = earliestInitialPaymentDate.map(someDate => InitialPaymentDate(LocalDate.parse(someDate)))
         val request: StartDatesRequest = DatesTdAll.startDatesRequest(InitialPayment(initialPayment), PreferredDayOfMonth(preferredDayOfMonth))
-        val response: HttpResponse = connector.startDates(request).futureValue
-        response.json.as[StartDatesResponse] shouldBe DatesTdAll.startDatesResponse(initialPaymentDate, earliestInstalmentStartDate)
+        val response: StartDatesResponse = connector.startDates(request).futureValue
+        response shouldBe DatesTdAll.startDatesResponse(initialPaymentDate, earliestInstalmentStartDate)
       }
     }
   }
@@ -110,8 +109,8 @@ class DatesControllerSpec extends ItSpec {
         earliestPlanStartDate = EarliestPlanStartDate(LocalDate.parse(TdDates.`11thJan2022`)),
         latestPlanStartDate   = LatestPlanStartDate(LocalDate.parse(TdDates.`10thFeb2022`))
       )
-      val response: HttpResponse = connector.extremeDates(request).futureValue
-      response.json.as[ExtremeDatesResponse] shouldBe expectedResult
+      val response: ExtremeDatesResponse = connector.extremeDates(request).futureValue
+      response shouldBe expectedResult
     }
 
     "return Some(initialPaymentDate(+10 days)), earliestPlanStartDate(+30 days), latestPlanStartDate(+60 days), when initialPayment=true" in {
@@ -122,8 +121,8 @@ class DatesControllerSpec extends ItSpec {
         earliestPlanStartDate = EarliestPlanStartDate(LocalDate.parse("2022-01-31")),
         latestPlanStartDate   = LatestPlanStartDate(LocalDate.parse(TdDates.`2ndMar2022`))
       )
-      val response: HttpResponse = connector.extremeDates(request).futureValue
-      response.json.as[ExtremeDatesResponse] shouldBe expectedResult
+      val response: ExtremeDatesResponse = connector.extremeDates(request).futureValue
+      response shouldBe expectedResult
     }
 
   }
