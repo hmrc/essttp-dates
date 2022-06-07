@@ -1,3 +1,3 @@
 # microservice specific routes
 
-GET        /hello-world             uk.gov.hmrc.essttpdates.controllers.MicroserviceHelloWorldController.hello
+POST       /start-dates             uk.gov.hmrc.essttpdates.controllers.StartDatesController.startDates()

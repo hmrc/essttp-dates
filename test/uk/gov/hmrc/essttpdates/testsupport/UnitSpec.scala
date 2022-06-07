@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.essttpdates.config
+package uk.gov.hmrc.essttpdates.testsupport
 
-import com.google.inject.{AbstractModule, Provides, Singleton}
+import org.scalatest.freespec.AnyFreeSpecLike
 
-import java.time.Clock
-
-class Module extends AbstractModule {
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-  }
-
-  @Provides
-  @Singleton
-  def clock(): Clock = Clock.systemUTC()
-}
+/**
+ * This is common spec for every test case which brings all of useful routines we want to use in our scenarios.
+ */
+trait UnitSpec
+  extends AnyFreeSpecLike
+  with RichMatchers
