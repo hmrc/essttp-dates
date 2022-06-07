@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.essttpdates.config
+package uk.gov.hmrc.essttpdates.models
 
-import com.google.inject.{AbstractModule, Provides, Singleton}
+import play.api.libs.json.{Json, Format}
 
-import java.time.Clock
+final case class InitialPayment(value: Boolean)
 
-class Module extends AbstractModule {
-
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
-  }
-
-  @Provides
-  @Singleton
-  def clock(): Clock = Clock.systemUTC()
+object InitialPayment {
+  implicit val format: Format[InitialPayment] = Json.valueFormat
 }

@@ -14,18 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.essttpdates.controllers
+package uk.gov.hmrc.essttpdates.models
 
-import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
-import play.api.mvc.{Action, AnyContent, ControllerComponents}
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future
+import play.api.libs.json.{Format, Json}
 
-@Singleton()
-class MicroserviceHelloWorldController @Inject() (cc: ControllerComponents)
-  extends BackendController(cc) {
+import java.time.LocalDate
 
-  def hello(): Action[AnyContent] = Action.async { _ =>
-    Future.successful(Ok("Hello world"))
-  }
+final case class InitialPaymentDate(value: LocalDate)
+
+object InitialPaymentDate {
+
+  implicit val format: Format[InitialPaymentDate] = Json.valueFormat
 }

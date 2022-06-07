@@ -109,3 +109,4 @@ lazy val microservice = Project(appName, file("."))
     Compile / doc / wartremoverErrors := Seq(),
     Compile / doc / scalacOptions := Seq() //this will allow to have warnings in `doc` task
   )
+  .settings(routesImport ++= Seq())

@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.essttpdates.config
+package uk.gov.hmrc.essttpdates.testsupport
 
-import com.google.inject.{AbstractModule, Provides, Singleton}
+import play.api.libs.json.{JsObject, Json}
 
-import java.time.Clock
+object JsonSyntax extends JsonSyntax
 
-class Module extends AbstractModule {
+trait JsonSyntax {
 
-  override def configure(): Unit = {
-    bind(classOf[AppConfig]).asEagerSingleton()
+  @SuppressWarnings(Array("org.wartremover.warts.ExplicitImplicitTypes", "org.wartremover.warts.PublicInference"))
+  implicit def toJsonOps(s: String) = new {
+    def asJson: JsObject = Json.parse(s) match {
+      case d: JsObject => d
+      case v           => throw new RuntimeException(s"Cant parse as JsObject: $s ")
+    }
   }
-
-  @Provides
-  @Singleton
-  def clock(): Clock = Clock.systemUTC()
 }

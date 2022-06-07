@@ -1,0 +1,34 @@
+### Example of posting for start dates endpoint
+POST http://localhost:9219/essttp-dates/start-dates
+Accept: */*
+Cache-Control: no-cache
+Content-Type: Application/Json
+
+{
+  "initialPayment": true,
+  "preferredDayOfMonth": 1
+}
+
+### with no initial payment
+
+POST http://localhost:9219/essttp-dates/start-dates
+Accept: */*
+Cache-Control: no-cache
+Content-Type: Application/Json
+
+{
+  "initialPayment": false,
+  "preferredDayOfMonth": 1
+}
+
+### throw an error
+
+POST http://localhost:9219/essttp-dates/start-dates
+Accept: */*
+Cache-Control: no-cache
+Content-Type: Application/Json
+
+{
+  "initialPayment": false,
+  "preferredDayOfMonth": 0
+}
