@@ -24,15 +24,13 @@ import uk.gov.hmrc.essttpdates.services.{ExtremeDatesService, StartDatesService}
 import uk.gov.hmrc.play.bootstrap.backend.controller.BackendController
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
 
 @Singleton()
 class DatesController @Inject() (
     startDatesService:   StartDatesService,
     extremeDatesService: ExtremeDatesService,
     cc:                  ControllerComponents
-)(implicit executionContext: ExecutionContext)
-  extends BackendController(cc) {
+) extends BackendController(cc) {
 
   def startDates(): Action[StartDatesRequest] = Action(parse.json[StartDatesRequest]) { implicit request =>
     Ok(Json.toJson(startDatesService.calculateStartDates(request.body)))

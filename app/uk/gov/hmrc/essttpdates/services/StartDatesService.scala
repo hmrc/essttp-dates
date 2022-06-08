@@ -20,8 +20,6 @@ import com.google.inject.{Inject, Singleton}
 import essttp.rootmodel.dates.InitialPaymentDate
 import essttp.rootmodel.dates.startdates.{InstalmentStartDate, PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
 
-import scala.concurrent.Future
-
 import java.time.LocalDate
 
 @Singleton
