@@ -19,9 +19,6 @@ package uk.gov.hmrc.essttpdates.services
 import com.google.inject.{Inject, Singleton}
 import essttp.rootmodel.dates.InitialPaymentDate
 import essttp.rootmodel.dates.startdates.{InstalmentStartDate, PreferredDayOfMonth, StartDatesRequest, StartDatesResponse}
-import uk.gov.hmrc.http.UpstreamErrorResponse
-
-import scala.concurrent.Future
 
 import java.time.LocalDate
 
@@ -37,26 +34,22 @@ class StartDatesService @Inject() (datesService: DatesService) {
     }
   }
 
-  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[StartDatesResponse] = {
-    if (startDatesRequest.preferredDayOfMonth.value < 1 || startDatesRequest.preferredDayOfMonth.value > 29) {
-      Future.failed(UpstreamErrorResponse("PreferredDayOfMonth has to be between 1 and 28", play.mvc.Http.Status.BAD_REQUEST))
-    } else {
-      val initialPaymentDate: Option[InitialPaymentDate] =
-        datesService.initialPaymentDate(
-          initialPayment    = startDatesRequest.initialPayment,
-          numberOfDaysToAdd = 10
-        )
-      val potentialInstalmentStartDate: InstalmentStartDate = initialPaymentDate match {
-        case Some(_) => InstalmentStartDate(datesService.todayPlusDays(30))
-        case None    => InstalmentStartDate(datesService.todayPlusDays(10))
-      }
-      val instalmentStartDate: InstalmentStartDate =
-        calculateInstalmentStartDate(
-          preferredDayOfMonth = startDatesRequest.preferredDayOfMonth,
-          proposedStartDate   = potentialInstalmentStartDate.value
-        )
-
-      Future.successful(StartDatesResponse(initialPaymentDate, instalmentStartDate))
+  def calculateStartDates(startDatesRequest: StartDatesRequest): StartDatesResponse = {
+    val initialPaymentDate: Option[InitialPaymentDate] =
+      datesService.initialPaymentDate(
+        initialPayment    = startDatesRequest.initialPayment,
+        numberOfDaysToAdd = 10
+      )
+    val potentialInstalmentStartDate: InstalmentStartDate = initialPaymentDate match {
+      case Some(_) => InstalmentStartDate(datesService.todayPlusDays(30))
+      case None    => InstalmentStartDate(datesService.todayPlusDays(10))
     }
+    val instalmentStartDate: InstalmentStartDate =
+      calculateInstalmentStartDate(
+        preferredDayOfMonth = startDatesRequest.preferredDayOfMonth,
+        proposedStartDate   = potentialInstalmentStartDate.value
+      )
+
+    StartDatesResponse(initialPaymentDate, instalmentStartDate)
   }
 }

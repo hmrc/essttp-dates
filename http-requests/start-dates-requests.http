@@ -6,7 +6,7 @@ Content-Type: Application/Json
 
 {
   "initialPayment": true,
-  "preferredDayOfMonth": 1
+  "preferredDayOfMonth": 28
 }
 
 ### with no initial payment
