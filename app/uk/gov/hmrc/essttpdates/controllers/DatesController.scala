@@ -34,9 +34,8 @@ class DatesController @Inject() (
 )(implicit executionContext: ExecutionContext)
   extends BackendController(cc) {
 
-  def startDates(): Action[StartDatesRequest] = Action.async(parse.json[StartDatesRequest]) { implicit request =>
-    startDatesService.calculateStartDates(request.body)
-      .map(startDatesResponse => Ok(Json.toJson(startDatesResponse)))
+  def startDates(): Action[StartDatesRequest] = Action(parse.json[StartDatesRequest]) { implicit request =>
+    Ok(Json.toJson(startDatesService.calculateStartDates(request.body)))
   }
 
   def extremeDates(): Action[ExtremeDatesRequest] = Action(parse.json[ExtremeDatesRequest]) { implicit request =>

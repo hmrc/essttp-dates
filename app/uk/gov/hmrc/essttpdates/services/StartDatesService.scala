@@ -36,7 +36,7 @@ class StartDatesService @Inject() (datesService: DatesService) {
     }
   }
 
-  def calculateStartDates(startDatesRequest: StartDatesRequest): Future[StartDatesResponse] = {
+  def calculateStartDates(startDatesRequest: StartDatesRequest): StartDatesResponse = {
     val initialPaymentDate: Option[InitialPaymentDate] =
       datesService.initialPaymentDate(
         initialPayment    = startDatesRequest.initialPayment,
@@ -52,6 +52,6 @@ class StartDatesService @Inject() (datesService: DatesService) {
         proposedStartDate   = potentialInstalmentStartDate.value
       )
 
-    Future.successful(StartDatesResponse(initialPaymentDate, instalmentStartDate))
+    StartDatesResponse(initialPaymentDate, instalmentStartDate)
   }
 }
